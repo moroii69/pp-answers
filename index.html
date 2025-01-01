@@ -3,112 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Unit Links</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/lib/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #181C14;
-            color: #ECDFCC;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-            flex-direction: column;
+        :root {
+            --primary: #2563eb;
+            --background: #0f172a;
+            --card: #1e293b;
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --accent: #38bdf8;
         }
 
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
         }
 
         .container {
-            width: 100%;
-            max-width: 800px;
-            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .units-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .unit-card {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .unit-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .unit-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent);
         }
 
         .content {
-            background-color: #697565;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: left;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .footer {
-            font-size: 0.9rem;
-            color: #3C3D37;
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 2rem;
             margin-top: 2rem;
         }
 
-        .footer a {
-            color: #ECDFCC;
+        .content h1, .content h2, .content h3 {
+            margin: 1.5rem 0 1rem;
+            color: var(--accent);
+        }
+
+        .content p {
+            margin-bottom: 1rem;
+        }
+
+        .content a {
+            color: var(--primary);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .content a:hover {
+            border-color: var(--primary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+        }
+
+        .error {
+            background: #dc2626;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--muted);
+        }
+
+        footer a {
+            color: var(--accent);
             text-decoration: none;
         }
 
-        .footer a:hover {
-            color: #fff;
+        footer a:hover {
+            text-decoration: underline;
         }
 
-        a {
-            color: #ECDFCC;
-            text-decoration: none;
-            transition: color 0.3s;
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
         }
 
-        a:hover {
-            color: #fff;
+        /* Loading animation */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--card);
+            border-bottom-color: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin: 2rem 0;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Unit Links</h1>
-        
-        <div class="content" id="md-content">
-            <!-- Content from markdown will be inserted here -->
+        <header>
+            <h1>Unit Links</h1>
+        </header>
+
+        <div class="units-grid" id="units-grid">
+            <!-- Unit cards will be generated here -->
         </div>
 
-        <div class="footer">
-            <p>Created by <a href="https://github.com/moroii69" target="_blank">moroii69</a></p>
+        <div class="content" id="content">
+            <div class="loading">
+                <span class="loader"></span>
+                <p>Loading content...</p>
+            </div>
         </div>
+
+        <footer>
+            <p>Created with ♥ by <a href="https://github.com/moroii69" target="_blank">moroii69</a></p>
+        </footer>
     </div>
 
-    <!-- Marked.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/lib/marked.min.js"></script>
-
     <script>
-        // Define the markdown URLs for SAQs and LAQs (you can modify the links as needed)
-        const markdownUrls = [
-            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-03/SAQs/README.md",
-            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-03/LAQs/README.md",
-            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-04/SAQs/README.md",
-            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-04/LAQs/README.md",
-            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-05/SAQs/README.md",
-            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-05/LAQs/README.md"
-        ];
-
-        async function fetchAndDisplayMarkdown(urls) {
-            let content = '';
-            for (let url of urls) {
-                const response = await fetch(url);
-                if (response.ok) {
-                    const markdownText = await response.text();
-                    content += marked(markdownText); // Convert markdown to HTML using marked.js
-                } else {
-                    content += `<p>Error fetching file from: ${url}</p>`;
-                }
+        const units = {
+            'Unit 3': {
+                saq: 'https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-03/SAQs/README.md',
+                laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-03/LAQs/README.md'
+            },
+            'Unit 4': {
+                saq: 'https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-04/SAQs/README.md',
+                laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-04/LAQs/README.md'
+            },
+            'Unit 5': {
+                saq: 'https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-05/SAQs/README.md',
+                laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-05/LAQs/README.md'
             }
-            document.getElementById('md-content').innerHTML = content; // Display converted HTML in the container
+        };
+
+        // Generate unit cards
+        const unitsGrid = document.getElementById('units-grid');
+        Object.entries(units).forEach(([unit, links]) => {
+            const card = document.createElement('div');
+            card.className = 'unit-card';
+            card.innerHTML = `
+                <h2 class="unit-title">${unit}</h2>
+                <p><a href="#" onclick="loadContent('${links.saq}'); return false;">Short Answer Questions</a></p>
+                <p><a href="#" onclick="loadContent('${links.laq}'); return false;">Long Answer Questions</a></p>
+            `;
+            unitsGrid.appendChild(card);
+        });
+
+        // Enhanced markdown fetching and rendering
+        async function loadContent(url) {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = '<div class="loading"><span class="loader"></span><p>Loading content...</p></div>';
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
+                
+                const markdown = await response.text();
+                const html = marked(markdown, {
+                    gfm: true,
+                    breaks: true,
+                    highlight: function(code, lang) {
+                        if (Prism.languages[lang]) {
+                            return Prism.highlight(code, Prism.languages[lang], lang);
+                        }
+                        return code;
+                    }
+                });
+                
+                contentDiv.innerHTML = html;
+
+                // Scroll to content
+                contentDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (error) {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        <p>Error loading content: ${error.message}</p>
+                        <p>Please try again later or check the URL.</p>
+                    </div>
+                `;
+            }
         }
 
-        // Fetch and display the markdown content
-        fetchAndDisplayMarkdown(markdownUrls);
+        // Load first unit's SAQ by default
+        loadContent(units['Unit 3'].saq);
     </script>
 </body>
 </html>
