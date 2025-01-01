@@ -1,3 +1,6 @@
+UNIT -- 05
+
+
 Long Type Questions (5–10 sentences with examples):
 1.	Discuss the core functionalities of NumPy. Write a Python program to demonstrate array creation, indexing, and transposition.
 2.	Explain Universal Array Functions in NumPy with examples. Demonstrate at least two functions, such as np.sqrt and np.mean.

@@ -1,12 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unit Links</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/lib/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+
+<body>
+    <div id="app"></div>
+    <script>
+        // First initialize marked
+        marked.use({
+            gfm: true,
+            breaks: true
+        });
+
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="container">
+                <header>
+                    <h1>Unit Links</h1>
+                </header>
+                <div class="units-grid" id="units-grid"></div>
+                <div class="content" id="content">
+                    <div class="loading">
+                        <span class="loader"></span>
+                        <p>Loading content...</p>
+                    </div>
+                </div>
+                <footer>
+                    <p>Created with ♥ by <a href="https://github.com/moroii69" target="_blank" rel="noopener noreferrer">moroii69</a></p>
+                </footer>
+            </div>
+        `;
+
+        const units = {
+            'Unit 3': {
+                saq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-03/SAQs/README.md',
+                laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-03/LAQs/README.md'
+            },
+            'Unit 4': {
+                saq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-04/SAQs/README.md',
+                laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-04/LAQs/README.md'
+            },
+            'Unit 5': {
+                saq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-05/SAQs/README.md',
+                laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-05/LAQs/README.md'
+            }
+        };
+
+        async function loadContent(url) {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = '<div class="loading"><span class="loader"></span><p>Loading content...</p></div>';
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const markdown = await response.text();
+                contentDiv.innerHTML = marked.parse(markdown);
+                contentDiv.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        <p>Error loading content: ${error.message}</p>
+                        <p>Please try again later or check the URL.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function initializeApp() {
+            const unitsGrid = document.getElementById('units-grid');
+            Object.entries(units).forEach(([unit, links]) => {
+                const card = document.createElement('div');
+                card.className = 'unit-card';
+                card.innerHTML = `
+                    <h2 class="unit-title">${unit}</h2>
+                    <p><a href="#" data-url="${links.saq}">Short Answer Questions</a></p>
+                    <p><a href="#" data-url="${links.laq}">Long Answer Questions</a></p>
+                `;
+
+                card.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        loadContent(e.target.dataset.url);
+                    });
+                });
+
+                unitsGrid.appendChild(card);
+            });
+
+            // Load initial content
+            loadContent(units['Unit 3'].saq);
+        }
+
+        // Initialize once DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+
     <style>
         :root {
             --primary: #2563eb;
@@ -15,8 +111,6 @@
             --text: #e2e8f0;
             --muted: #64748b;
             --accent: #38bdf8;
-            --error: #dc2626;
-            --success: #10b981;
         }
 
         * {
@@ -30,7 +124,6 @@
             background: var(--background);
             color: var(--text);
             line-height: 1.6;
-            min-height: 100vh;
         }
 
         .container {
@@ -42,17 +135,14 @@
         header {
             text-align: center;
             margin-bottom: 3rem;
-            padding: 2rem 0;
         }
 
         h1 {
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 1rem;
             background: linear-gradient(to right, var(--accent), var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-align: center;
         }
 
         .units-grid {
@@ -67,12 +157,11 @@
             border-radius: 1rem;
             padding: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease;
         }
 
         .unit-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.2);
         }
 
         .unit-title {
@@ -93,12 +182,11 @@
             padding: 0.5rem;
             border-radius: 0.5rem;
             background: rgba(255, 255, 255, 0.1);
-            transition: background 0.2s ease, color 0.2s ease;
+            transition: background 0.2s ease;
         }
 
         .unit-card a:hover {
             background: rgba(255, 255, 255, 0.2);
-            color: var(--accent);
         }
 
         .content {
@@ -106,98 +194,13 @@
             border-radius: 1rem;
             padding: 2rem;
             margin-top: 2rem;
-            min-height: 400px;
-        }
-
-        .content h1, .content h2, .content h3 {
-            margin: 1.5rem 0 1rem;
-            color: var(--accent);
-        }
-
-        .content h1:first-child {
-            margin-top: 0;
-        }
-
-        .content p {
-            margin-bottom: 1rem;
-        }
-
-        .content a {
-            color: var(--primary);
-            text-decoration: none;
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.2s ease;
-        }
-
-        .content a:hover {
-            border-color: var(--primary);
-        }
-
-        .content pre {
-            margin: 1rem 0;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background: var(--background);
-            overflow-x: auto;
-        }
-
-        .content code {
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9em;
-        }
-
-        .content ul, .content ol {
-            margin: 1rem 0;
-            padding-left: 2rem;
-        }
-
-        .content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.5rem;
-            margin: 1rem 0;
+            min-height: 300px;
         }
 
         .loading {
             text-align: center;
             padding: 2rem;
             color: var(--muted);
-        }
-
-        .error {
-            background: var(--error);
-            color: white;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin: 1rem 0;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .success {
-            background: var(--success);
-            color: white;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin: 1rem 0;
-            animation: fadeIn 0.3s ease;
-        }
-
-        footer {
-            text-align: center;
-            padding: 2rem 0;
-            color: var(--muted);
-            margin-top: 2rem;
-        }
-
-        footer a {
-            color: var(--accent);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        footer a:hover {
-            color: var(--primary);
-            text-decoration: underline;
         }
 
         .loader {
@@ -213,13 +216,35 @@
         }
 
         @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .error {
+            background: #dc2626;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--muted);
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
         }
 
         @media (max-width: 768px) {
@@ -230,193 +255,38 @@
             h1 {
                 font-size: 2rem;
             }
-
-            .unit-card {
-                padding: 1rem;
-            }
-
-            .content {
-                padding: 1rem;
-            }
         }
 
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.75rem;
-            }
-
-            .unit-title {
-                font-size: 1.1rem;
-            }
-
-            .content {
-                padding: 0.75rem;
-            }
+        /* Content styles */
+        .content h1,
+        .content h2,
+        .content h3 {
+            color: var(--accent);
+            margin: 1rem 0;
         }
 
-        @media (prefers-reduced-motion) {
-            .unit-card, .unit-card:hover {
-                transform: none;
-            }
+        .content p {
+            margin-bottom: 1rem;
+        }
 
-            .loader {
-                animation: none;
-            }
+        .content pre {
+            background: var(--background);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
 
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
+        .content code {
+            font-family: monospace;
+        }
+
+        .content ul,
+        .content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Unit Links</h1>
-        </header>
-
-        <div class="units-grid" id="units-grid"></div>
-
-        <div class="content" id="content">
-            <div class="loading">
-                <span class="loader"></span>
-                <p>Loading content...</p>
-            </div>
-        </div>
-
-        <footer>
-            <p>Created with ♥ by <a href="https://github.com/moroii69" target="_blank" rel="noopener noreferrer">moroii69</a></p>
-        </footer>
-    </div>
-
-    <script>
-        const units = {
-            'Unit 3': {
-                saq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-03/SAQs/README.md',
-                laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-03/LAQs/README.md'
-            },
-            'Unit 4': {
-                saq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-04/SAQs/README.md',
-                laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-04/LAQs/README.md'
-            },
-            'Unit 5': {
-                saq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-05/SAQs/README.md',
-                laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-05/LAQs/README.md'
-            }
-        };
-
-        class ContentLoader {
-            constructor() {
-                this.contentDiv = document.getElementById('content');
-                this.currentRequest = null;
-            }
-
-            async loadContent(url) {
-                if (this.currentRequest) {
-                    this.currentRequest.abort();
-                }
-
-                this.showLoading();
-
-                try {
-                    const controller = new AbortController();
-                    this.currentRequest = controller;
-
-                    const response = await fetch(url, {
-                        signal: controller.signal
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const markdown = await response.text();
-                    const html = this.convertMarkdown(markdown);
-                    
-                    this.showContent(html);
-                    this.scrollToContent();
-
-                } catch (error) {
-                    if (error.name === 'AbortError') {
-                        return;
-                    }
-                    this.showError(error.message);
-                } finally {
-                    this.currentRequest = null;
-                }
-            }
-
-            convertMarkdown(markdown) {
-                return marked(markdown, {
-                    gfm: true,
-                    breaks: true,
-                    highlight: function(code, lang) {
-                        if (Prism.languages[lang]) {
-                            return Prism.highlight(code, Prism.languages[lang], lang);
-                        }
-                        return code;
-                    }
-                });
-            }
-
-            showLoading() {
-                this.contentDiv.innerHTML = `
-                    <div class="loading">
-                        <span class="loader"></span>
-                        <p>Loading content...</p>
-                    </div>
-                `;
-            }
-
-            showContent(html) {
-                this.contentDiv.innerHTML = html;
-            }
-
-            showError(message) {
-                this.contentDiv.innerHTML = `
-                    <div class="error">
-                        <p>Error loading content: ${message}</p>
-                        <p>Please try again later or check the URL.</p>
-                    </div>
-                `;
-            }
-
-            scrollToContent() {
-                this.contentDiv.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        }
-
-        function initializeApp() {
-            const contentLoader = new ContentLoader();
-            const unitsGrid = document.getElementById('units-grid');
-
-            Object.entries(units).forEach(([unit, links]) => {
-                const card = document.createElement('div');
-                card.className = 'unit-card';
-                card.innerHTML = `
-                    <h2 class="unit-title">${unit}</h2>
-                    <p><a href="#" data-url="${links.saq}">Short Answer Questions</a></p>
-                    <p><a href="#" data-url="${links.laq}">Long Answer Questions</a></p>
-                `;
-
-                card.querySelectorAll('a').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        contentLoader.loadContent(e.target.dataset.url);
-                    });
-                });
-
-                unitsGrid.appendChild(card);
-            });
-
-            contentLoader.loadContent(units['Unit 3'].saq);
-        }
-
-        document.addEventListener('DOMContentLoaded', initializeApp);
-    </script>
 </body>
+
 </html>
