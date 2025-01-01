@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Unit Links</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #181C14;
+            color: #ECDFCC;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 1rem;
+        }
+
+        .content {
+            background-color: #697565;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .footer {
+            font-size: 0.9rem;
+            color: #3C3D37;
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: #ECDFCC;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: #fff;
+        }
+
+        a {
+            color: #ECDFCC;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Unit Links</h1>
+        
+        <div class="content" id="md-content">
+            <!-- Content from markdown will be inserted here -->
+        </div>
+
+        <div class="footer">
+            <p>Created by <a href="https://github.com/moroii69" target="_blank">moroii69</a></p>
+        </div>
+    </div>
+
+    <!-- Marked.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/lib/marked.min.js"></script>
+
+    <script>
+        // Define the markdown URLs for SAQs and LAQs (you can modify the links as needed)
+        const markdownUrls = [
+            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-03/SAQs/README.md",
+            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-03/LAQs/README.md",
+            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-04/SAQs/README.md",
+            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-04/LAQs/README.md",
+            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-05/SAQs/README.md",
+            "https://raw.githubusercontent.com/moroii69/pp-answers/main/unit-05/LAQs/README.md"
+        ];
+
+        async function fetchAndDisplayMarkdown(urls) {
+            let content = '';
+            for (let url of urls) {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const markdownText = await response.text();
+                    content += marked(markdownText); // Convert markdown to HTML using marked.js
+                } else {
+                    content += `<p>Error fetching file from: ${url}</p>`;
+                }
+            }
+            document.getElementById('md-content').innerHTML = content; // Display converted HTML in the container
+        }
+
+        // Fetch and display the markdown content
+        fetchAndDisplayMarkdown(markdownUrls);
+    </script>
+</body>
+</html>
