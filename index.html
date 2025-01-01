@@ -15,6 +15,8 @@
             --text: #e2e8f0;
             --muted: #64748b;
             --accent: #38bdf8;
+            --error: #dc2626;
+            --success: #10b981;
         }
 
         * {
@@ -28,6 +30,7 @@
             background: var(--background);
             color: var(--text);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
@@ -39,6 +42,7 @@
         header {
             text-align: center;
             margin-bottom: 3rem;
+            padding: 2rem 0;
         }
 
         h1 {
@@ -48,6 +52,7 @@
             background: linear-gradient(to right, var(--accent), var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: center;
         }
 
         .units-grid {
@@ -62,11 +67,12 @@
             border-radius: 1rem;
             padding: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .unit-card:hover {
             transform: translateY(-4px);
+            box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.2);
         }
 
         .unit-title {
@@ -76,16 +82,40 @@
             color: var(--accent);
         }
 
+        .unit-card p {
+            margin: 0.75rem 0;
+        }
+
+        .unit-card a {
+            color: var(--text);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .unit-card a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--accent);
+        }
+
         .content {
             background: var(--card);
             border-radius: 1rem;
             padding: 2rem;
             margin-top: 2rem;
+            min-height: 400px;
         }
 
         .content h1, .content h2, .content h3 {
             margin: 1.5rem 0 1rem;
             color: var(--accent);
+        }
+
+        .content h1:first-child {
+            margin-top: 0;
         }
 
         .content p {
@@ -103,6 +133,31 @@
             border-color: var(--primary);
         }
 
+        .content pre {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background: var(--background);
+            overflow-x: auto;
+        }
+
+        .content code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+        }
+
+        .content ul, .content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        .content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
         .loading {
             text-align: center;
             padding: 2rem;
@@ -110,39 +165,41 @@
         }
 
         .error {
-            background: #dc2626;
+            background: var(--error);
             color: white;
             padding: 1rem;
             border-radius: 0.5rem;
             margin: 1rem 0;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .success {
+            background: var(--success);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            animation: fadeIn 0.3s ease;
         }
 
         footer {
             text-align: center;
             padding: 2rem 0;
             color: var(--muted);
+            margin-top: 2rem;
         }
 
         footer a {
             color: var(--accent);
             text-decoration: none;
+            transition: color 0.2s ease;
         }
 
         footer a:hover {
+            color: var(--primary);
             text-decoration: underline;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-        }
-
-        /* Loading animation */
         .loader {
             width: 48px;
             height: 48px;
@@ -159,6 +216,58 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .unit-card {
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .unit-title {
+                font-size: 1.1rem;
+            }
+
+            .content {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (prefers-reduced-motion) {
+            .unit-card, .unit-card:hover {
+                transform: none;
+            }
+
+            .loader {
+                animation: none;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        }
     </style>
 </head>
 <body>
@@ -167,9 +276,7 @@
             <h1>Unit Links</h1>
         </header>
 
-        <div class="units-grid" id="units-grid">
-            <!-- Unit cards will be generated here -->
-        </div>
+        <div class="units-grid" id="units-grid"></div>
 
         <div class="content" id="content">
             <div class="loading">
@@ -179,7 +286,7 @@
         </div>
 
         <footer>
-            <p>Created with ♥ by <a href="https://github.com/moroii69" target="_blank">moroii69</a></p>
+            <p>Created with ♥ by <a href="https://github.com/moroii69" target="_blank" rel="noopener noreferrer">moroii69</a></p>
         </footer>
     </div>
 
@@ -198,30 +305,50 @@
                 laq: 'https://raw.githubusercontent.com/moroii69/pp-answers/refs/heads/main/unit-05/LAQs/README.md'
             }
         };
-        // Generate unit cards
-        const unitsGrid = document.getElementById('units-grid');
-        Object.entries(units).forEach(([unit, links]) => {
-            const card = document.createElement('div');
-            card.className = 'unit-card';
-            card.innerHTML = `
-                <h2 class="unit-title">${unit}</h2>
-                <p><a href="#" onclick="loadContent('${links.saq}'); return false;">Short Answer Questions</a></p>
-                <p><a href="#" onclick="loadContent('${links.laq}'); return false;">Long Answer Questions</a></p>
-            `;
-            unitsGrid.appendChild(card);
-        });
 
-        // Enhanced markdown fetching and rendering
-        async function loadContent(url) {
-            const contentDiv = document.getElementById('content');
-            contentDiv.innerHTML = '<div class="loading"><span class="loader"></span><p>Loading content...</p></div>';
+        class ContentLoader {
+            constructor() {
+                this.contentDiv = document.getElementById('content');
+                this.currentRequest = null;
+            }
 
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
-                
-                const markdown = await response.text();
-                const html = marked(markdown, {
+            async loadContent(url) {
+                if (this.currentRequest) {
+                    this.currentRequest.abort();
+                }
+
+                this.showLoading();
+
+                try {
+                    const controller = new AbortController();
+                    this.currentRequest = controller;
+
+                    const response = await fetch(url, {
+                        signal: controller.signal
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const markdown = await response.text();
+                    const html = this.convertMarkdown(markdown);
+                    
+                    this.showContent(html);
+                    this.scrollToContent();
+
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        return;
+                    }
+                    this.showError(error.message);
+                } finally {
+                    this.currentRequest = null;
+                }
+            }
+
+            convertMarkdown(markdown) {
+                return marked(markdown, {
                     gfm: true,
                     breaks: true,
                     highlight: function(code, lang) {
@@ -231,24 +358,65 @@
                         return code;
                     }
                 });
-                
-                contentDiv.innerHTML = html;
+            }
 
-                // Scroll to content
-                contentDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            showLoading() {
+                this.contentDiv.innerHTML = `
+                    <div class="loading">
+                        <span class="loader"></span>
+                        <p>Loading content...</p>
+                    </div>
+                `;
+            }
 
-            } catch (error) {
-                contentDiv.innerHTML = `
+            showContent(html) {
+                this.contentDiv.innerHTML = html;
+            }
+
+            showError(message) {
+                this.contentDiv.innerHTML = `
                     <div class="error">
-                        <p>Error loading content: ${error.message}</p>
+                        <p>Error loading content: ${message}</p>
                         <p>Please try again later or check the URL.</p>
                     </div>
                 `;
             }
+
+            scrollToContent() {
+                this.contentDiv.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         }
 
-        // Load first unit's SAQ by default
-        loadContent(units['Unit 3'].saq);
+        function initializeApp() {
+            const contentLoader = new ContentLoader();
+            const unitsGrid = document.getElementById('units-grid');
+
+            Object.entries(units).forEach(([unit, links]) => {
+                const card = document.createElement('div');
+                card.className = 'unit-card';
+                card.innerHTML = `
+                    <h2 class="unit-title">${unit}</h2>
+                    <p><a href="#" data-url="${links.saq}">Short Answer Questions</a></p>
+                    <p><a href="#" data-url="${links.laq}">Long Answer Questions</a></p>
+                `;
+
+                card.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        contentLoader.loadContent(e.target.dataset.url);
+                    });
+                });
+
+                unitsGrid.appendChild(card);
+            });
+
+            contentLoader.loadContent(units['Unit 3'].saq);
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>
